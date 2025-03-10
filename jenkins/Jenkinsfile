@@ -1,4 +1,4 @@
-pipeline {
+pipeline { 
     agent {
         docker {
             image 'node:lts-buster-slim'
@@ -7,7 +7,7 @@ pipeline {
     }
     environment {
         CI = 'true'
-        SONAR_HOST_URL = 'http://52.62.54.6:9000/'
+        SONAR_HOST_URL = 'http://52.62.54.6:9000'
     }
     stages {
         stage('Build') {
@@ -22,16 +22,14 @@ pipeline {
         }
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('SonarQube') {
-                    withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
-                        sh '''
-                        npx sonarqube-scanner \
-                          -Dsonar.projectKey=my-app \
-                          -Dsonar.sources=. \
-                          -Dsonar.host.url=$SONAR_HOST_URL \
-                          -Dsonar.login=$SONAR_TOKEN
-                        '''
-                    }
+                withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
+                    sh '''
+                    npx sonarqube-scanner \
+                      -Dsonar.projectKey=my-app \
+                      -Dsonar.sources=. \
+                      -Dsonar.host.url=$SONAR_HOST_URL \
+                      -Dsonar.login=$SONAR_TOKEN
+                    '''
                 }
             }
         }
