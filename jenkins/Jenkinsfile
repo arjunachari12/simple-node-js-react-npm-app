@@ -7,7 +7,7 @@ pipeline {
     }
     environment {
         CI = 'true'
-        SONAR_HOST_URL = 'http://172.19.0.2:9000'
+        SONAR_HOST_URL = 'http://52.62.54.6:9000/'
         SONAR_SCANNER_OPTS = "-Dsonar.projectKey=my-app"
     }
     stages {
