@@ -7,6 +7,8 @@ pipeline {
     }
     environment {
         CI = 'true'
+        SONAR_HOST_URL = 'http://localhost:9000'
+        SONAR_SCANNER_OPTS = "-Dsonar.projectKey=my-app"
     }
     stages {
         stage('Build') {
@@ -19,11 +21,31 @@ pipeline {
                 sh './jenkins/scripts/test.sh'
             }
         }
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    sh '''
+                    npx sonarqube-scanner \
+                      -Dsonar.projectKey=my-app \
+                      -Dsonar.sources=. \
+                      -Dsonar.host.url=$SONAR_HOST_URL \
+                      -Dsonar.login=${sonar-token}
+                    '''
+                }
+            }
+        }
+        stage('Quality Gate') {
+            steps {
+                script {
+                    timeout(time: 5, unit: 'MINUTES') {
+                        waitForQualityGate abortPipeline: true
+                    }
+                }
+            }
+        }
         stage('Deliver') {
             steps {
-                sh './jenkins/scripts/deliver.sh'
-                input message: 'Finished using the web site? (Click "Proceed" to continue)'
-                sh './jenkins/scripts/kill.sh'
+                sh './jenkins/scripts/deliver.sh'    
             }
         }
     }
