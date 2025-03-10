@@ -7,7 +7,7 @@ pipeline {
     }
     environment {
         CI = 'true'
-        SONAR_HOST_URL = 'http://host.docker.internal:9000'
+        SONAR_HOST_URL = 'http://sonarqube:9000'
         SONAR_SCANNER_OPTS = "-Dsonar.projectKey=my-app"
     }
     stages {
@@ -22,18 +22,19 @@ pipeline {
             }
         }
         stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('SonarQube') {
-                    sh '''
-                    npx sonarqube-scanner \
-                      -Dsonar.projectKey=my-app \
-                      -Dsonar.sources=. \
-                      -Dsonar.host.url=$SONAR_HOST_URL \
-                      -Dsonar.login=${sonar-token}
-                    '''
-                }
-            }
+    steps {
+        withSonarQubeEnv('SonarQube') {
+            sh '''
+            npx sonarqube-scanner \
+              -Dsonar.projectKey=my-app \
+              -Dsonar.sources=. \
+              -Dsonar.host.url=$SONAR_HOST_URL \
+              -Dsonar.token=$SONAR_TOKEN
+            '''
         }
+    }
+}
+
         stage('Quality Gate') {
             steps {
                 script {
